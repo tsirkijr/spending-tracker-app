@@ -2,13 +2,14 @@ import streamlit as st
 import csv
 from datetime import datetime
 from collections import defaultdict
+import io
 
-def calculate_spending(csv_file, monthly_income):
+def calculate_spending(uploaded_file, monthly_income):
     """
     Calculates spending, income, and savings from a CSV file.
 
     Args:
-        csv_file (str): The path to the CSV file containing transaction data.
+        uploaded_file (streamlit.uploaded_file_manager.UploadedFile): The uploaded CSV file object.
         monthly_income (float): The user's monthly income.
 
     Returns:
@@ -26,7 +27,7 @@ def calculate_spending(csv_file, monthly_income):
         "Phone + Internet", "Building Fees", "Taxes", "Energy"
     ]
 
-    with open(csv_file, 'r', encoding='utf-8') as file:
+    with io.TextIOWrapper(uploaded_file, encoding='utf-8') as file:
         reader = csv.reader(file, skipinitialspace=True)
         header = next(reader) # Read the header row
         for row in reader:
@@ -91,5 +92,5 @@ monthly_income = st.number_input("Enter your monthly income", value=1150)
 
 
 if uploaded_file is not None:
-    report = calculate_spending(uploaded_file, monthly_income)
+    report = calculate_spending(uploaded_file.file, monthly_income)
     print_report(report)
