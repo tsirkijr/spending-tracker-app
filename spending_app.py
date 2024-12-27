@@ -27,32 +27,32 @@ def calculate_spending(uploaded_file, monthly_income):
         "Phone + Internet", "Building Fees", "Taxes", "Energy"
     ]
 
-    with io.TextIOWrapper(uploaded_file, encoding='utf-8') as file:
-        reader = csv.reader(file, skipinitialspace=True)
-        header = next(reader) # Read the header row
-        for row in reader:
-            # Skip empty rows
-            if not row or not any(row):
-              continue
+    
+    reader = csv.reader(io.StringIO(uploaded_file.getvalue().decode("utf-8")), skipinitialspace=True)
+    header = next(reader) # Read the header row
+    for row in reader:
+        # Skip empty rows
+        if not row or not any(row):
+          continue
 
-            #remove unnecessary text
-            if row[0].startswith("Ημερομηνία"):
-              continue
+        #remove unnecessary text
+        if row[0].startswith("Ημερομηνία"):
+          continue
 
-            # Data Extraction and Type Conversions
-            category = row[0].strip()
-            amount = float(row[2].replace(",", "."))  # Convert to float and handle decimal commas
-            transaction_date = datetime.strptime(row[1], "%d/%m/%Y") # Convert date string to a datetime object
+        # Data Extraction and Type Conversions
+        category = row[0].strip()
+        amount = float(row[2].replace(",", "."))  # Convert to float and handle decimal commas
+        transaction_date = datetime.strptime(row[1], "%d/%m/%Y") # Convert date string to a datetime object
 
-            # Calculations
-            if amount < 0:
-                total_expenses += abs(amount)
-                category_expenses[category] += abs(amount)
-                if category not in bills_categories:
-                  expenses_without_bills += abs(amount)
+        # Calculations
+        if amount < 0:
+            total_expenses += abs(amount)
+            category_expenses[category] += abs(amount)
+            if category not in bills_categories:
+                expenses_without_bills += abs(amount)
 
-            elif amount > 0:
-                total_income += amount
+        elif amount > 0:
+            total_income += amount
             
     # Calculate Total Savings
     total_savings = total_income - total_expenses
@@ -92,5 +92,5 @@ monthly_income = st.number_input("Enter your monthly income", value=1150)
 
 
 if uploaded_file is not None:
-    report = calculate_spending(uploaded_file.file, monthly_income)
+    report = calculate_spending(uploaded_file, monthly_income)
     print_report(report)
